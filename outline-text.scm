@@ -7,6 +7,7 @@
 ; gimp-image-select-item (image, op, item)
 ;
 
+; TODO: refresh image somehow. Make merged layer size of text. Make into group.
 (define (script-fu-outline-text img active-layer color size merge)
     ; Abort if current layer not text
     (if (= 0 (car (gimp-item-is-text-layer active-layer)))
@@ -37,13 +38,19 @@
         (gimp-image-set-active-layer img layer)
         ; Grow selection
         (gimp-selection-grow img size)
-        ; Set foreground color. TODO: save old foreground.
+        ; Set foreground color and fill 
         (gimp-context-set-foreground color)
         (gimp-edit-fill layer 0)
+
         ; Restore old selection and fg color
+        ;(gimp-image-select-item img 2 old-selection) ; doesn't work :(
+        (gimp-selection-none img)
+        (gimp-context-set-foreground old-fg)
 
         ; Merge
-        (if merge (gimp-image-merge-down img active-layer 0))
+        (if (= 1 merge) (gimp-image-merge-down img active-layer 0))
+
+        ; End history item
         (gimp-image-undo-group-end img)
         )
     )
